@@ -1,35 +1,44 @@
-import random
 import sys
+import random
 
-from PyQt5 import uic  # Импортируем uic
+from PyQt5 import uic
 from PyQt5.QtGui import QPainter, QColor
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow
+from Ui import Ui_MainWindow
 
 
-class MyWidget(QMainWindow):
+class Example(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi('UI.ui', self)  # Загружаем дизайн
-        self.pushButton.clicked.connect(self.pan)
-        self.q = False
-        # Обратите внимание: имя элемента такое же как в QTDesigner
+        self.setupUi(self)
+        self.do_paint = False
+        self.initUI()
 
-    def pan(self):
-        self.q = True
-        self.update()
+    def initUI(self):
+        self.setGeometry(300, 300, 350, 450)
+        self.setWindowTitle('Рисование')
+        self.pushButton.clicked.connect(self.paint)
+
+    def paint(self):
+        self.do_paint = True
+        self.repaint()
 
     def paintEvent(self, event):
-        if self.q:
-            qp = QPainter()
-            qp.begin(self)
-            qp.setBrush(QColor(255, 255, 0))
-            r = random.randint(5, 500)
-            qp.drawEllipse(random.randint(50, 150), random.randint(50, 150), r, r)
-            qp.end()
+        qp = QPainter()
+        qp.begin(self)
+        self.draw_circle(qp)
+        qp.end()
+
+    def draw_circle(self, qp):
+        if self.do_paint:
+            a = random.randint(10, 200)
+            qp.setBrush(QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
+            qp.drawEllipse(50, 50, a, a)
+            self.do_paint = False
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = MyWidget()
+    ex = Example()
     ex.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
